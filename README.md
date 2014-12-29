@@ -1,5 +1,5 @@
 # unibot-lutakko
-Lutakko event fetch plugin for UniBot.
+Lutakko event fetch plugin for UniBot. This plugin fetches event information from http://www.jelmu.net/ website.
 
 ## Install
 To your UniBot application
