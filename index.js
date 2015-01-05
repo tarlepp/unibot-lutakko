@@ -14,6 +14,9 @@ var cheerio = require('cheerio');
  * Also note that this plugin relies heavily to HTML structure of that site. So there will be times, when this plugin
  * doesn't work right.
  *
+ * @todo    Make item count configurable
+ * @todo    Make bot just to say one message (need more opinions of this)
+ *
  * @param   {Object} options Plugin options object, description below.
  *   db: {mongoose} the mongodb connection
  *   bot: {irc} the irc bot
@@ -29,21 +32,29 @@ module.exports = function init(options) {
         return {
             '^!lutakko$': function lutakko(from, matches) {
                 helpers.download('http://www.jelmu.net/', function success(data) {
-                    var $ = cheerio.load(data);
+                    if (data == null) {
+                        channel.say(from, 'Did not get any data from URL http://www.jelmu.net/ - site maybe down?');
+                    } else {
+                        var $ = cheerio.load(data);
 
-                    $("ul[role='upcoming-events'] li").each(function iterator(i, elem) {
-                        if (i < 3) {
-                            var event = $(this);
-                            var date = event.find('div.date span').text().trim();
-                            var artists = [];
+                        $("ul[role='upcoming-events'] li").each(function iterator(i, elem) {
+                            if (i < 3) {
+                                var event = $(this);
+                                var date = event.find('div.date span').text().trim();
+                                var artists = [];
 
-                            event.find('a span').each(function iterator() {
-                                artists.push($(this).text().trim());
-                            });
+                                event.find('a span').each(function iterator() {
+                                    artists.push($(this).text().trim());
+                                });
 
-                            channel.say(date + ' ' + artists.join(' '));
-                        }
-                    });
+                                if (artists.length > 0) {
+                                    channel.say(date + ' ' + artists.join(' '));
+                                } else {
+                                    channel.say(from, 'Did not find any "proper" artist data...');
+                                }
+                            }
+                        });
+                    }
                 });
             }
         };
